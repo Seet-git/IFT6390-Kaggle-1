@@ -109,7 +109,7 @@ class SVM:
             # history['train_acc'].append(train_acc)
             # history['val_acc'].append(val_acc)
 
-        return f"Epoch {epochs + 1}: Train Loss = {history['train_loss'][-1]:.4f}, Val Loss = {history['val_loss'][-1]:.4f}"
+        return history['train_loss'][-1], history['val_loss'][-1]
 
 
 def split_dataset(inputs_documents: np.array, labels_documents: np.array):
@@ -138,10 +138,22 @@ def main():
     # Initialize SVM
     svm_model = SVM(vocab)
 
-    # Cross-validation k-folds
-    c_tab =  [0.001, 0.01, 0.1, 1, 10, 100]
-    test = [svm_model.fit(training_inputs, training_labels, epochs=100, learning_rate=0.0001, C=x, batch_size=5) for x in c_tab]
+    epochs_tab = np.array([10, 50, 100, 200], dtype=int)
+    learning_rates_tab = np.array([0.0001, 0.001, 0.01, 0.1])
+    C_tab = np.array([0.01, 0.1, 1, 10, 100])
+    batch_sizes_tab = np.array([1, 8, 32, 64], dtype=int)
 
+    # Utiliser meshgrid pour générer la grille de combinaisons
+    grid = np.array(np.meshgrid(epochs_tab, learning_rates_tab, C_tab, batch_sizes_tab, indexing='ij'), dtype=object).T.reshape(-1,4)
+
+    history_tab = []
+    compteur = 1
+    for i in grid:
+        history_tab.append(svm_model.fit(training_inputs, training_labels, i[0], i[1], i[2], i[3]))
+        print(f"{compteur}/{grid.shape[0]}")
+        compteur+= 1
+    print("Done")
+    print(history_tab)
 
 if __name__ == '__main__':
     main()

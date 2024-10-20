@@ -1,14 +1,10 @@
-# Import nltk and download stopwords
 import nltk
 import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
-from nltk.stem import PorterStemmer
-from numpy.core.fromnumeric import argmax
 
 nltk.download('stopwords')
 sw_nltk = stopwords.words('english')
-steemer = PorterStemmer()
 
 
 class NaiveBayesClassifier:
@@ -63,7 +59,7 @@ class NaiveBayesClassifier:
         # Calculate Log P(Y|X) = Log P(Y) * \prod P(X|Y)^x = P(Y) + sum P(X|Y) * x
         for point in test_input:
             res_class = np.dot(point, log_p_x_given_y.T) + log_p_y
-            pred_class = argmax(res_class)
+            pred_class = np.argmax(res_class)
             res.append(self.y_labels[pred_class])
         return res
 
@@ -179,7 +175,7 @@ def k_fold_cross_validation(inputs_train, labels_train, k=5):
     index_tab = np.arange(n)
     np.random.shuffle(index_tab)
 
-    smooth_tab = [0, 0.01, 0.02, 0.05, 0.07, 0.1, 1]
+    smooth_tab = [0.06, 0.065, 0.07, 0.075, 0.08]
 
     # List of accuracy for each fold
     accuracy_k_fold = np.zeros((len(smooth_tab), k))
@@ -247,46 +243,34 @@ def remove_stopwords(vocab: np.array, inputs_documents: np.array):
     return np.delete(inputs_documents, clean_index, axis=1)
 
 
-def tf_idf(inputs_documents: np.array):
-    tf = (inputs_documents + 0.1) / np.sum(inputs_documents, axis=1, keepdims=True)
-
-    # Calcul de l'IDF : ajoute 1 pour éviter log(0)
-    idf = np.log((inputs_documents.shape[0] + 1) / (1 + np.sum(inputs_documents > 0, axis=0))) + 1
-
-    return tf * idf
-
-
 def main():
-    inputs_documents = np.load('../data/data_train.npy', allow_pickle=True)
+    inputs_documents = np.load('../data/data_train.npy', allow_pickle=True, )
     labels_documents = pd.read_csv('../data/label_train.csv').to_numpy()[:, 1]
     test_documents = np.load('../data/data_test.npy', allow_pickle=True)
     vocab = np.load('../data/vocab_map.npy', allow_pickle=True)
 
-    # Remove stopwords
-    inputs_documents = remove_stopwords(vocab, inputs_documents)
-    test_documents = remove_stopwords(vocab, test_documents)
-
-    # # TF-IDF
-    # inputs_documents = tf_idf(inputs_documents)
-    # test_documents = tf_idf(test_documents)
+    # Remove stopwords smoothing: 0.007 | i = 10 | moyenne test 0.689 | moyenne k-folds 0.679 |
+    inputs_documents_remove = remove_stopwords(vocab, inputs_documents)
+    test_documents_remove = remove_stopwords(vocab, test_documents)
 
     # Cross validation
-    iterate = 1
+    iterate = 10
     res = np.zeros((iterate, 3))
     for i in range(iterate):
         np.random.seed(i)
         print(f"Iteration {i + 1}: \n")
-        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents, labels_documents,
+        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents_remove,
+                                                                                   labels_documents,
                                                                                    k=5)
         res[i] = mean_k_fold_accuracy, best_smooth, test_accuracy
 
     best_test_index = np.argmax(np.bincount(res[:, 2].astype(int)))
-    print("FINAL: ", res[best_test_index])
+    print("FINAL RESULTS: ", res[best_test_index])
 
     # Train the model
     naives_bayes = NaiveBayesClassifier()
-    naives_bayes.fit(inputs_documents, labels_documents, smoothing=0.5)
-    pred = naives_bayes.predict(test_documents)
+    naives_bayes.fit(inputs_documents_remove, labels_documents, smoothing=0.07)
+    pred = naives_bayes.predict(test_documents_remove)
 
     np.savetxt('bayes_naives.csv', pred, fmt='%d', delimiter=',')
 

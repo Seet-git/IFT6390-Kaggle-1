@@ -44,7 +44,7 @@ class NaiveBayesClassifier:
             self.p_x_given_y[classes] = np.sum(self.x_train[self.y_train == current_class], axis=0) + smoothing
 
             # Calculate \sum of all X for a given class y
-            nb_inputs_class = np.sum(self.p_x_given_y[classes]) + n_features
+            nb_inputs_class = np.sum(self.p_x_given_y[classes]) + n_features * smoothing
 
             # Calculate P(Xi) given a class y
             self.p_x_given_y[classes] = self.p_x_given_y[classes] / nb_inputs_class
@@ -175,7 +175,7 @@ def k_fold_cross_validation(inputs_train, labels_train, k=5):
     index_tab = np.arange(n)
     np.random.shuffle(index_tab)
 
-    smooth_tab = [0.06, 0.065, 0.07, 0.075, 0.08]
+    smooth_tab = [0.05, 0.07, 0.1, 0.2, 0.5, 0.7, 0.8]
 
     # List of accuracy for each fold
     accuracy_k_fold = np.zeros((len(smooth_tab), k))
@@ -244,22 +244,22 @@ def remove_stopwords(vocab: np.array, inputs_documents: np.array):
 
 
 def main():
-    inputs_documents = np.load('../data/data_train.npy', allow_pickle=True, )
+    inputs_documents = np.load('../data/data_train.npy', allow_pickle=True)
     labels_documents = pd.read_csv('../data/label_train.csv').to_numpy()[:, 1]
     test_documents = np.load('../data/data_test.npy', allow_pickle=True)
     vocab = np.load('../data/vocab_map.npy', allow_pickle=True)
 
-    # Remove stopwords smoothing: 0.007 | i = 10 | moyenne test 0.689 | moyenne k-folds 0.679 |
+    # Remove stopwords smoothing: 0.7 | i = 10 | moyenne test 0.697 | moyenne k-folds 0.680 |
     inputs_documents_remove = remove_stopwords(vocab, inputs_documents)
     test_documents_remove = remove_stopwords(vocab, test_documents)
 
     # Cross validation
-    iterate = 10
+    iterate = 100
     res = np.zeros((iterate, 3))
     for i in range(iterate):
         np.random.seed(i)
         print(f"Iteration {i + 1}: \n")
-        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents_remove,
+        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents,
                                                                                    labels_documents,
                                                                                    k=5)
         res[i] = mean_k_fold_accuracy, best_smooth, test_accuracy
@@ -269,10 +269,13 @@ def main():
 
     # Train the model
     naives_bayes = NaiveBayesClassifier()
-    naives_bayes.fit(inputs_documents_remove, labels_documents, smoothing=0.07)
-    pred = naives_bayes.predict(test_documents_remove)
+    naives_bayes.fit(inputs_documents, labels_documents, smoothing=0.7)
+    pred = naives_bayes.predict(test_documents)
 
-    np.savetxt('bayes_naives.csv', pred, fmt='%d', delimiter=',')
+    # Save the predictions
+    df_pred = pd.DataFrame(pred, columns=['label'])
+    df_pred.index.name = 'ID'
+    df_pred.to_csv('../output/naive_bayes_baseline.csv')
 
 
 if __name__ == '__main__':

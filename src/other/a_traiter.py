@@ -2,66 +2,51 @@ import nltk
 import numpy as np
 import pandas as pd
 from nltk.corpus import stopwords
-
-nltk.download('stopwords')
-sw_nltk = stopwords.words('english')
+from nltk.stem import PorterStemmer
 
 
 class NaiveBayesClassifier:
 
     def __init__(self):
-        self.p_x_given_y = None
-        self.p_y = None
-        self.y_train = None
-        self.x_train = None
+        self.prior_probability = None
+        self.conditional_probability = {}
         self.y_labels = None
 
-    def fit(self, x, y, smoothing: float = 1):
+    def fit(self, x, y):
         self.y_labels = np.unique(y)
-        self.x_train = x
-        self.y_train = y
-
-        # Calculer P(Y) = nb Yi / nb Y
-
-        # p_y: List(n_class)
         n_class = len(self.y_labels)
-        self.p_y = np.zeros(n_class)
 
-        for classes in range(n_class):
-            current_class = self.y_labels[classes]
-            nb_docs = self.x_train.shape[0]
-            self.p_y[classes] = np.sum(self.y_train == current_class) / nb_docs
+        # Calculer la probabilité a priori P(Y)
+        self.prior_probability = np.zeros(n_class)
+        for i, label in enumerate(self.y_labels):
+            self.prior_probability[i] = np.sum(y == label) / len(y)
 
-        # Calculer P(Xi|Y) = nb Xi | Y / nb X | Y
+        # Calculer les probabilités conditionnelles P(X|Y) pour chaque attribut
+        n_features = x.shape[1]
+        for i in range(n_features):
+            x_feature_unique = np.unique(x[:, i])
+            x_conditional_probability = np.zeros((n_class, len(x_feature_unique)))
 
-        # p_x_given_y: Matrix(n_class, n_features)
-        n_features = self.x_train.shape[1]
-        self.p_x_given_y = np.zeros((n_class, n_features))
+            for j, label in enumerate(self.y_labels):
+                for k, feature_val in enumerate(x_feature_unique):
+                    x_conditional_probability[j, k] = np.sum((x[:, i] == feature_val) & (y == label)) / np.sum(
+                        y == label)
 
-        for classes in range(n_class):
-            # Calculate \sum of all Xi given a class y
-            current_class = self.y_labels[classes]
-            self.p_x_given_y[classes] = np.sum(self.x_train[self.y_train == current_class], axis=0) + smoothing
-
-            # Calculate \sum of all X for a given class y
-            nb_inputs_class = np.sum(self.p_x_given_y[classes]) + n_features * smoothing
-
-            # Calculate P(Xi) given a class y
-            self.p_x_given_y[classes] = self.p_x_given_y[classes] / nb_inputs_class
+            self.conditional_probability[f'x{i + 1}'] = pd.DataFrame(x_conditional_probability,
+                                                                     columns=x_feature_unique,
+                                                                     index=self.y_labels)
 
     def predict(self, test_input):
-        # Apply log to avoid underflow
-        log_p_y = np.log(self.p_y)
-        log_p_x_given_y = np.log(self.p_x_given_y)
-
-        res = []
-
-        # Calculate Log P(Y|X) = Log P(Y) * \prod P(X|Y)^x = P(Y) + sum P(X|Y) * x
-        for point in test_input:
-            res_class = np.dot(point, log_p_x_given_y.T) + log_p_y
-            pred_class = np.argmax(res_class)
-            res.append(self.y_labels[pred_class])
-        return res
+        predictions = []
+        for X in test_input:
+            p = []
+            for i, label in enumerate(self.y_labels):
+                prob = self.prior_probability[i]
+                for j, val in enumerate(X):
+                    prob *= self.conditional_probability[f'x{j + 1}'].loc[label, val]
+                p.append(prob)
+            predictions.append(self.y_labels[np.argmax(p)])
+        return predictions
 
 
 def k_fold_split(train_set: tuple, index_tab, fold_size: int, k_index: int):
@@ -175,7 +160,7 @@ def k_fold_cross_validation(inputs_train, labels_train, k=5):
     index_tab = np.arange(n)
     np.random.shuffle(index_tab)
 
-    smooth_tab = [0.05, 0.07, 0.1, 0.2, 0.5, 0.7, 0.8]
+    smooth_tab = [0.01, 0.02, 0.05, 0.07, 0.1, 1]
 
     # List of accuracy for each fold
     accuracy_k_fold = np.zeros((len(smooth_tab), k))
@@ -191,7 +176,7 @@ def k_fold_cross_validation(inputs_train, labels_train, k=5):
 
             # Train the model
             nb_classifier = NaiveBayesClassifier()
-            nb_classifier.fit(x_train, y_train, smoothing=smooth)
+            nb_classifier.fit(x_train, y_train)
             y_pred = nb_classifier.predict(x_valid)
 
             # Compute the accuracy
@@ -243,40 +228,48 @@ def remove_stopwords(vocab: np.array, inputs_documents: np.array):
     return np.delete(inputs_documents, clean_index, axis=1)
 
 
-def main():
-    inputs_documents = np.load('../data/data_train.npy', allow_pickle=True)
-    labels_documents = pd.read_csv('../data/label_train.csv').to_numpy()[:, 1]
-    test_documents = np.load('../data/data_test.npy', allow_pickle=True)
-    vocab = np.load('../data/vocab_map.npy', allow_pickle=True)
+def tf_idf(docs):
+    # Calcul du TF pour chaque document
+    tf = docs / np.sum(docs, axis=1, keepdims=True)  # Diviser chaque valeur par le total des mots dans le doc
 
-    # Remove stopwords smoothing: 0.7 | i = 10 | moyenne test 0.697 | moyenne k-folds 0.680 |
-    inputs_documents_remove = remove_stopwords(vocab, inputs_documents)
-    test_documents_remove = remove_stopwords(vocab, test_documents)
+    # Calcul du IDF (Inverse Document Frequency)
+    N = docs.shape[0]  # Nombre total de documents
+    df = np.sum(docs > 0, axis=0)  # Nombre de documents contenant chaque mot
+    idf = np.log(N / (df + 1))  # On ajoute 1 pour éviter la division par 0
+
+    # Calcul du TF-IDF
+    tf_idf = tf * idf
+    return tf_idf
+
+
+def main():
+    inputs_documents = np.load('../data/smote_data.npy.npy', allow_pickle=True, )
+    labels_documents = pd.read_csv('../../data/smote_labels.csv').to_numpy()[:, 1]
+    test_documents = np.load('../../data/data_test.npy', allow_pickle=True)
+    vocab = np.load('../../data/vocab_map.npy', allow_pickle=True)
 
     # Cross validation
-    iterate = 100
+    iterate = 1
     res = np.zeros((iterate, 3))
     for i in range(iterate):
         np.random.seed(i)
         print(f"Iteration {i + 1}: \n")
-        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents,
-                                                                                   labels_documents,
+        # mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents, labels_documents,
+        #                                                                            k=5)
+        mean_k_fold_accuracy, best_smooth, test_accuracy = k_fold_cross_validation(inputs_documents, labels_documents,
                                                                                    k=5)
         res[i] = mean_k_fold_accuracy, best_smooth, test_accuracy
 
     best_test_index = np.argmax(np.bincount(res[:, 2].astype(int)))
-    print("FINAL RESULTS: ", res[best_test_index])
+    print("FINAL: ", res[best_test_index])
 
-    # Train the model
-    naives_bayes = NaiveBayesClassifier()
-    naives_bayes.fit(inputs_documents, labels_documents, smoothing=0.7)
-    pred = naives_bayes.predict(test_documents)
-
-    # Save the predictions
-    df_pred = pd.DataFrame(pred, columns=['label'])
-    df_pred.index.name = 'ID'
-    df_pred.to_csv('../output/naive_bayes_baseline.csv')
-
+    # # Train the model
+    # naives_bayes = NaiveBayesClassifier()
+    # naives_bayes.fit(inputs_documents, labels_documents, smoothing=0.5)
+    # pred = naives_bayes.predict(test_documents)
+    #
+    # np.savetxt('bayes_naives.csv', pred, fmt='%d', delimiter=',')
+    #
 
 if __name__ == '__main__':
     main()

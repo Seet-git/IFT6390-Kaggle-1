@@ -1,0 +1,44 @@
+_wandb:
+    value:
+        cli_version: 0.18.3
+        m: []
+        python_version: 3.9.19
+        t:
+            "1":
+                - 1
+                - 5
+                - 53
+                - 55
+            "2":
+                - 1
+                - 5
+                - 53
+                - 55
+            "3":
+                - 16
+                - 23
+                - 55
+            "4": 3.9.19
+            "5": 0.18.3
+            "8":
+                - 5
+            "12": 0.18.3
+            "13": linux-x86_64
+balanced:
+    value: null
+batch_size:
+    value: 128
+epochs:
+    value: 10
+hidden_layer:
+    value: null
+learning_rate:
+    value: null
+minority_weight:
+    value: null
+optimizer:
+    value: null
+threshold:
+    value: null
+weight_decay:
+    value: null

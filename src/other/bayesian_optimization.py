@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from hyperopt import fmin, tpe, hp, Trials, STATUS_OK
 from nltk.corpus import stopwords
+from src.Naives_bayes.preprocessing import *
 
 sw_nltk = stopwords.words('english')
 
@@ -160,7 +161,10 @@ def compute_f1_score_macro(y_true, y_pred):
 def objective(params):
     inputs_documents = np.load('../../data/data_train.npy', allow_pickle=True)
     labels_documents = pd.read_csv('../../data/label_train.csv').to_numpy()[:, 1]
+    vocab = np.load('../../data/vocab_map.npy', allow_pickle=True)
     smoothing = params['smoothing']
+    inputs_documents = remove_stopwords(vocab, inputs_documents)
+    inputs_documents = remove_low_frequency_v2(inputs_documents, labels_documents, 10)
 
     # Splitter le dataset pour créer une validation set
     train_set, test_set = split_dataset(inputs_documents, labels_documents)

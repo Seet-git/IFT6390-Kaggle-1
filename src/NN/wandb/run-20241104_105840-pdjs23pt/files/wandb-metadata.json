@@ -1,0 +1,32 @@
+{
+  "os":  "Linux-5.15.0-124-generic-x86_64-with-glibc2.35",
+  "python":  "3.9.19",
+  "startedAt":  "2024-11-04T15:58:40.176353Z",
+  "program":  "/home/thierry/Desktop/M1/T1/IFT 6390 - Foundations of ML/Kaggle/ML Kaggle-1/src/NN/Mini-Batch.py",
+  "codePath":  "src/NN/Mini-Batch.py",
+  "git":  {
+    "remote":  "https://github.com/Seet-git/IFT6390-Kaggle-1.git",
+    "commit":  "4c491e56cffa53e2fc5f651d1dce4dfe8fcbb3de"
+  },
+  "email":  "thierry.poey@gmail.com",
+  "root":  "/home/thierry/Desktop/M1/T1/IFT 6390 - Foundations of ML/Kaggle/ML Kaggle-1/src/NN",
+  "host":  "thierry-CloudProXXXX",
+  "username":  "thierry",
+  "executable":  "/home/thierry/miniconda3/envs/ift6390-conda-env/bin/python",
+  "codePathLocal":  "Mini-Batch.py",
+  "cpu_count":  4,
+  "cpu_count_logical":  8,
+  "disk":  {
+    "/":  {
+      "total":  "502392610816",
+      "used":  "151017127936"
+    }
+  },
+  "memory":  {
+    "total":  "16534253568"
+  },
+  "cpu":  {
+    "count":  4,
+    "countLogical":  8
+  }
+}

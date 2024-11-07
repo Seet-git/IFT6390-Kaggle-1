@@ -1,0 +1,3 @@
+,hidden_size, k,epochs,batch_size, lr,threshold,optimizer,minority_weight
+Baseline,0.7
+Bayesian Naives Bayes,0.425248147226517

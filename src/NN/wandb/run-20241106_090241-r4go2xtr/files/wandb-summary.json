@@ -1,0 +1,1 @@
+{"Test loss":0.46278797168480723,"_runtime":37.532799424,"_step":9,"_wandb":{"runtime":37},"Test F1-score":0.7296673082715606,"_timestamp":1.7309017990148532e+09,"Train loss":0.3689271514969213,"Train F1-score":0.8667041845479297,"Epoch":10}

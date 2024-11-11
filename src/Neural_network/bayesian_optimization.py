@@ -63,7 +63,6 @@ def bayesian_optimization(n_trials: int) -> None:
     :return:
     """
     storage_url = f"mysql+pymysql://{config.USER}:{urllib.parse.quote(config.PASSWORD)}@{config.ENDPOINT}/{config.DATABASE_NAME}"
-    print(storage_url)
     study = optuna.create_study(
         direction="maximize",
         storage=storage_url,

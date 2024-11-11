@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import optuna
 
 from src.Naives_bayes.training_and_saving import train_model
-from src.other.export_data import export_dict_as_python
+from src.other.export_data import export_dict_as_python, export_trial_to_csv
 
 global_best_score = -float('inf')
 
@@ -35,7 +35,7 @@ def objective(trial):
 def optimize(n_trials):
     # Lancer l'optimisation bayésienne
     study = optuna.create_study(direction='maximize')
-    study.optimize(objective, n_trials=n_trials)
+    study.optimize(objective, n_trials=n_trials, callbacks=[export_trial_to_csv])
 
     # Show results
     print("Best trial:")

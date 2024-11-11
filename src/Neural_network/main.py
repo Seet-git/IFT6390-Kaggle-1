@@ -5,6 +5,9 @@ from src.Neural_network.bayesian_optimization import bayesian_optimization
 from src.Neural_network.predict import predict
 
 # <----- CHANGE THIS ------>
+config.ALGORITHM = "MLP_H2"
+config.ALGORITHM = "MLP_H1"
+config.ALGORITHM = "Perceptron"
 
 # Activate WANDB
 config.WANDB_ACTIVATE = False  # Note: login before activating
@@ -14,7 +17,7 @@ data_path = "../../data/"
 
 # BAYESIAN OPTIMISATION
 # -------------------------------------------------------------
-n_trials = 2
+n_trials = 1
 
 # Login mysql
 config.USER = "optuna_seet"
@@ -23,17 +26,18 @@ config.DATABASE_NAME = "optuna_MLP"
 config.ENDPOINT = "localhost"  # Local
 # ENDPOINT = 1.tcp.eu.ngrok.io:3791 # ngrok (LOTR)
 
-config.OUTPUT_HP_FILENAME = "hp_mlp_template"
+config.OUTPUT_HP_FILENAME = f"hp_{config.ALGORITHM}"
 config.OUTPUT_HP_PATH = "../../hyperparameters/"
+config.LOG_PATH = "./log"
 
 # PREDICTIONS
 # -------------------------------------------------------------
 # Hyperparameters
-hp_filename = "hp_mlp_template"
+hp_filename = f"hp_{config.ALGORITHM}"
 hp_path = "../../hyperparameters/"
 
 # Output prediction
-prediction_filename = "MLP_optimized"
+prediction_filename = f"{config.ALGORITHM}_pred"
 prediction_path = "../../output/"
 
 

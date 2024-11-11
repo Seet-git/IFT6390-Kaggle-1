@@ -1,9 +1,13 @@
 from types import SimpleNamespace
-
 import optuna
-
+import src.config as config
 from src.Naives_bayes.training_and_saving import train_model
 from src.other.export_data import export_dict_as_python, export_trial_to_csv
+from datetime import datetime
+import pytz
+
+montreal_timezone = pytz.timezone('America/Montreal')
+current_time = datetime.now(montreal_timezone).strftime("%m/%d-%H:%M:%S")
 
 global_best_score = -float('inf')
 
@@ -33,8 +37,12 @@ def objective(trial):
 
 
 def optimize(n_trials):
+    print(f"device: {config.DEVICE}")
+
     # Lancer l'optimisation bayésienne
-    study = optuna.create_study(direction='maximize')
+    study = optuna.create_study(direction='maximize',
+                                study_name=f"{config.ALGORITHM} Optimizer - {current_time}"
+                                )
     study.optimize(objective, n_trials=n_trials, callbacks=[export_trial_to_csv])
 
     # Show results

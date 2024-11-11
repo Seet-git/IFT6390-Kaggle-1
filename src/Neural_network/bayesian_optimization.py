@@ -4,7 +4,6 @@ import optuna
 import wandb
 from datetime import datetime
 import pytz
-
 import src.config as config
 from src.Neural_network.training import evaluation
 from src.other.export_data import export_dict_as_python, export_trial_to_csv
@@ -16,7 +15,9 @@ global_best_score = -float('inf')
 
 
 def objective(trial):
-    """
+    """config.ALGORITHM = "MLP_H2"
+    config.ALGORITHM = "MLP_H1"
+    config.ALGORITHM = "Perceptron"
     Function to capture
     :param trial:
     :return:
@@ -25,21 +26,28 @@ def objective(trial):
 
     hyperparameters_dict = {
         "batch_size": trial.suggest_int("batch_size", 32, 256, step=32),
-        "hidden_layer1": trial.suggest_int("hidden_layer1", 512, 2048, step=64),
-        "hidden_layer2": trial.suggest_int("hidden_layer2", 128, 320, step=64),
         "learning_rate": trial.suggest_float("learning_rate", 1e-5, 1e-1, log=True),
         "weight_decay": trial.suggest_float("weight_decay", 1e-5, 1e-2, log=True),
         "epochs": trial.suggest_int("epochs", 20, 60),
-        "dropout_rate": trial.suggest_float("dropout_rate", 0.1, 0.5),
         "minority_weight": trial.suggest_float("minority_weight", 1.0, 4.0),
         "low_frequency": trial.suggest_int("low_frequency", 0, 10),
         "high_frequency": trial.suggest_int("high_frequency", 0, 10),
         "infer_threshold": trial.suggest_float("infer_threshold", 0.1, 0.5)
     }
 
+    if config.ALGORITHM == "MLP_H2":
+        hyperparameters_dict["hidden_layer1"] = trial.suggest_int("hidden_layer1", 512, 2048, step=64)
+        hyperparameters_dict["hidden_layer2"] = trial.suggest_int("hidden_layer2", 128, 320, step=64)
+        hyperparameters_dict["dropout_rate"] = trial.suggest_float("dropout_rate", 0.1, 0.5)
+    elif config.ALGORITHM == "MLP_H1":
+        hyperparameters_dict["hidden_layer"] = trial.suggest_int("hidden_layer", 512, 2048, step=64)
+        hyperparameters_dict["dropout_rate"] = trial.suggest_float("dropout_rate", 0.1, 0.5)
+    elif config.ALGORITHM != "Perceptron":
+        raise ValueError("Bad ALGORITHM value")
+
     # Initialisation wandb
     if config.WANDB_ACTIVATE:
-        wandb.init(project="MLP Optimizer",
+        wandb.init(project=f"{config.ALGORITHM} Optimizer",
                    name=f"{current_time} - Trial_{trial.number}",
                    config=hyperparameters_dict
                    )
@@ -66,7 +74,7 @@ def bayesian_optimization(n_trials: int) -> None:
     study = optuna.create_study(
         direction="maximize",
         storage=storage_url,
-        study_name=f"MLP Optimizer - {current_time}",
+        study_name=f"{config.ALGORITHM} Optimizer - {current_time}",
         sampler=optuna.samplers.TPESampler(seed=1)
     )
 

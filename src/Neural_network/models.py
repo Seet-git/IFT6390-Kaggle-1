@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 
 
-class MLP_v2(nn.Module):
+class MLP_H2(nn.Module):
     def __init__(self, input_size, hidden_layer1=256, hidden_layer2=128, dropout_rate=0.5):
-        super(MLP_v2, self).__init__()
+        super(MLP_H2, self).__init__()
 
         # Layers
         self.input_layer = nn.Linear(input_size, hidden_layer1)
@@ -30,9 +30,9 @@ class MLP_v2(nn.Module):
         return y_output
 
 
-class MLP_v1(nn.Module):
+class MLP_H1(nn.Module):
     def __init__(self, input_size, hidden_layer=256, dropout_rate=0.5):
-        super(MLP_v1, self).__init__()
+        super(MLP_H1, self).__init__()
 
         # Layers
         self.input_layer = nn.Linear(input_size, hidden_layer)
@@ -55,9 +55,7 @@ class Perceptron(nn.Module):
 
         # Layers
         self.linear = nn.Linear(input_size, 1)
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x_input) -> torch.Tensor:
-        x_input = self.linear(x_input)
-        y_output = self.sigmoid(x_input)
+        y_output = self.linear(x_input)
         return y_output

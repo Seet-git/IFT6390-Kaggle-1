@@ -17,4 +17,4 @@ def export_trial_to_csv(study, trial):
     df = study.trials_dataframe()
 
     # Save dataframe
-    df.to_csv(f'./log/optuna_{config.OUTPUT_HP_FILENAME}.csv', index=False)
+    df.to_csv(f'{config.LOG_PATH}/log_{config.ALGORITHM}.csv', index=False)

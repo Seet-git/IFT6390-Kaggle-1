@@ -1,5 +1,4 @@
 from types import SimpleNamespace
-
 import torch
 import wandb
 import torch.nn as nn
@@ -10,7 +9,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
 from sklearn.model_selection import KFold
 import src.config as config
-from src.Neural_network.models import MLP_v2
+from src.Neural_network.utils import get_model
 from src.preprocessing import remove_low_high_frequency
 
 
@@ -131,7 +130,7 @@ def evaluation(hp, save_file=False, n_splits=2):
         labels_train, labels_val = config.LABELS_DOCUMENTS[train_index], config.LABELS_DOCUMENTS[val_index]
 
         # Set model
-        model = MLP_v2(X_train.shape[1], hp.hidden_layer1, hp.hidden_layer2, hp.dropout_rate).to(config.DEVICE)
+        model = get_model(X_train.shape[1], hp)
 
         # Compute weight difference to balance
         class_0_count = (config.LABELS_DOCUMENTS == 0).sum()

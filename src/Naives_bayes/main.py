@@ -1,8 +1,10 @@
-from src.Naives_bayes.training_and_saving import *
-from src.preprocessing import *
+from src.Naives_bayes.training_and_saving import save_prediction
 from src.Naives_bayes.optimizer import optimize
+import src.config as config
 import numpy as np
 import pandas as pd
+
+config.ALGORITHM = "Naives_bayes"
 
 # <----- CHANGE THIS ------>
 
@@ -13,21 +15,22 @@ data_path = "../../data/"
 # -------------------------------------------------------------
 n_trials = 2
 
-config.OUTPUT_HP_FILENAME = "hp_naives_bayes_template"
+config.OUTPUT_HP_FILENAME = f"hp_{config.ALGORITHM}"
 config.OUTPUT_HP_PATH = "../../hyperparameters/"
+config.LOG_PATH = "./log"
 
 # PREDICTIONS
 # -------------------------------------------------------------
 # Hyperparameters
-hp_filename = "hp_naives_bayes_template"
+hp_filename = f"hp_{config.ALGORITHM}"
 hp_path = "../../hyperparameters/"
 
 # Output prediction
-prediction_filename = "Naives_Bayes_optimized"
+prediction_filename = f"{config.ALGORITHM}_pred"
 prediction_path = "../../output/"
 
 
-def main():
+def NaiveBayesClassifier():
     print(f"device: {config.DEVICE}")
 
     # Load data
@@ -42,6 +45,5 @@ def main():
     # Predict
     save_prediction(output=output, hp_filename=hp_filename, hp_path=hp_path)
 
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    NaiveBayesClassifier()

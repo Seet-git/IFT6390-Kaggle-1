@@ -48,6 +48,9 @@ def remove_low_high_frequency(low_threshold, high_threshold):
     X_train = np.delete(config.INPUTS_DOCUMENTS, delete_words_low, axis=1)
     X_test = np.delete(config.TEST_DOCUMENTS, delete_words_low, axis=1)
 
+    if high_threshold == 0:
+        return X_train, X_test
+
     occurrence_0 = np.sum(X_train[config.LABELS_DOCUMENTS == 0], axis=0)
     occurrence_1 = np.sum(X_train[config.LABELS_DOCUMENTS == 1], axis=0)
 

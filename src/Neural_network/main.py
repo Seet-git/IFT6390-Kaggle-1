@@ -1,10 +1,13 @@
-from src.Naives_bayes.training_and_saving import *
-from src.preprocessing import *
-from src.Naives_bayes.optimizer import optimize
-import numpy as np
 import pandas as pd
+import numpy as np
+import src.config as config
+from src.Neural_network.bayesian_optimization import bayesian_optimization
+from src.Neural_network.predict import predict
 
 # <----- CHANGE THIS ------>
+
+# Activate WANDB
+config.WANDB_ACTIVATE = False  # Note: login before activating
 
 # Data path
 data_path = "../../data/"
@@ -13,17 +16,24 @@ data_path = "../../data/"
 # -------------------------------------------------------------
 n_trials = 2
 
-config.OUTPUT_HP_FILENAME = "hp_naives_bayes_template"
+# Login mysql
+config.USER = "optuna_seet"
+config.PASSWORD = "@g3NYkke*eAFRs"
+config.DATABASE_NAME = "optuna_MLP"
+config.ENDPOINT = "localhost"  # Local
+# ENDPOINT = 1.tcp.eu.ngrok.io:3791 # ngrok (LOTR)
+
+config.OUTPUT_HP_FILENAME = "hp_mlp_template"
 config.OUTPUT_HP_PATH = "../../hyperparameters/"
 
 # PREDICTIONS
 # -------------------------------------------------------------
 # Hyperparameters
-hp_filename = "hp_naives_bayes_template"
+hp_filename = "hp_mlp_template"
 hp_path = "../../hyperparameters/"
 
 # Output prediction
-prediction_filename = "Naives_Bayes_optimized"
+prediction_filename = "MLP_optimized"
 prediction_path = "../../output/"
 
 
@@ -35,12 +45,13 @@ def main():
     config.LABELS_DOCUMENTS = pd.read_csv(f'{data_path}label_train.csv').to_numpy()[:, 1]
     config.TEST_DOCUMENTS = np.load(f'{data_path}data_test.npy', allow_pickle=True)
 
-    optimize(n_trials=n_trials)
+    # Bayesian optimization
+    bayesian_optimization(n_trials=n_trials)
 
     output = f"{prediction_path}{prediction_filename}"
 
     # Predict
-    save_prediction(output=output, hp_filename=hp_filename, hp_path=hp_path)
+    predict(output=output, hp_filename=hp_filename, hp_path=hp_path)
 
 
 if __name__ == '__main__':

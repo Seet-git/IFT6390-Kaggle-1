@@ -1,5 +1,7 @@
-from src.Naives_bayes.Naives_Bayes import *
+from src.Naives_bayes.model import *
 import numpy as np
+import src.config as config
+from src.preprocessing import remove_low_high_frequency
 
 
 def k_fold_split(inputs_train, labels_train, index_tab, fold_size: int, k_index: int):
@@ -95,23 +97,25 @@ def compute_f1_score_macro(y_true, y_pred):
     return f1_macro
 
 
-def k_fold_cross_validation(inputs_documents, labels_documents, smoothing, k=5):
+def k_fold_cross_validation(hp, k=5):
     """
     Validation croisée en k-fold
-    :param inputs_documents:
-    :param labels_documents:
+    :param hp:
     :param k:
     :return:
     """
+    X_train, X_test = remove_low_high_frequency(low_threshold=hp.low_threshold,
+                                                high_threshold=hp.high_threshold)
+
     # Split the dataset into train and test set
-    inputs_train, labels_train, inputs_test, labels_test = split_dataset(inputs_documents, labels_documents)
+    inputs_train, labels_train, inputs_test, labels_test = split_dataset(X_train, config.LABELS_DOCUMENTS)
     n = len(inputs_train)  # Number of samples
 
     # Shuffle the dataset
     index_tab = np.arange(n)
     np.random.shuffle(index_tab)
 
-    smooth_tab = [smoothing]
+    smooth_tab = [hp.smoothing]
 
     fold_size = 0
     accuracy_k_fold = np.zeros(1)
@@ -157,7 +161,7 @@ def k_fold_cross_validation(inputs_documents, labels_documents, smoothing, k=5):
     # Moyenne de l'accuracy sur tous les folds
     mean_k_fold_accuracy = np.mean(accuracy_k_fold[best_smooth_index])
 
-    #print(f"Mean F1-score across all folds: {mean_k_fold_accuracy}, Best smoothing {best_smooth}")
+    # print(f"Mean F1-score across all folds: {mean_k_fold_accuracy}, Best smoothing {best_smooth}")
 
     # Train the model on the whole training sets
     nb_classifier = NaiveBayesClassifier()

@@ -1,0 +1,6 @@
+Models/hp,hidden_size,epochs,batch_size,threshold,optimizer,minority_weight,learning_rate,weight_decay,balanced,remove_frequency
+Baseline,,,,0.7,,,,,,
+Bayesian Naives Bayes,,,,0.425248147226517,,,,,,
+MPL_remove_frequency,320,46,192,0.56570142550062,Adagrad,2.80987557454345,0.000363366901415,0.002399309791293,True,3
+MLP 1st try,384,24,160,0.269700677483679,Adadelta,2.19186721636614,0.0484551386562176,0.0005996759054919,False,0
+MLP Final,448,51,96,0.5,RMSprop,1.056057352738091,0.00001225744553857153,0.00006831878841148728,True,5

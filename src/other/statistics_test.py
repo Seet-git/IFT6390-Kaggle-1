@@ -32,3 +32,5 @@ if p_value < alpha:
     print("Nous rejetons l'hypothèse nulle : les distributions sont différentes.")
 else:
     print("Nous ne pouvons pas rejeter l'hypothèse nulle : les distributions sont similaires.")
+
+

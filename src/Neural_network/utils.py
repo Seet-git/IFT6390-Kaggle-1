@@ -1,8 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve
 import src.config as config
 import random
+from sklearn.metrics import roc_curve, auc, precision_recall_curve, confusion_matrix, f1_score, precision_score, \
+    recall_score, accuracy_score
+import seaborn as sns
 
 from torch.utils.data import WeightedRandomSampler
 
@@ -24,38 +26,6 @@ def set_seed(seed: int):
     torch.backends.cudnn.benchmark = False
 
 
-def plot_precision_recall_curve(model, data, plot=False):
-    y_true, y_pred_proba = [], []
-
-    # Récupération des probabilités pour chaque exemple
-    model.eval()
-    with torch.no_grad():
-        for inputs, labels in data:
-            outputs = model(inputs)
-            y_pred_proba.extend(torch.sigmoid(outputs).view(-1).cpu().numpy())
-            y_true.extend(labels.cpu().numpy())
-
-    # Calcul de la courbe PRC
-    precision, recall, thresholds = precision_recall_curve(y_true, y_pred_proba)
-    f1_scores = 2 * (precision * recall) / (precision + recall) + 0.0001
-
-    # Plot
-    if plot:
-        plt.figure(figsize=(10, 6))
-        plt.plot(recall, precision, label="PRC Curve")
-        plt.xlabel("Recall")
-        plt.ylabel("Precision")
-        plt.title("Precision-Recall Curve")
-        plt.legend()
-        plt.grid(True)
-        plt.show()
-
-    # Meilleur seuil pour le F1-score
-    best_threshold = thresholds[np.argmax(f1_scores)]
-
-    return best_threshold
-
-
 def create_balanced_sampler(y_train):
     # Count class
     class_counts = [(y_train == 0).sum().item(), y_train.sum().item()]
@@ -68,7 +38,8 @@ def create_balanced_sampler(y_train):
     sampler = WeightedRandomSampler(weights=sample_weights, num_samples=len(sample_weights), replacement=True)
     return sampler
 
-def get_model(input_size ,hp):
+
+def get_model(input_size, hp):
     if input_size <= 0:
         raise ValueError(f"Invalid input_size: {input_size}. It must be positive.")
     if config.ALGORITHM == "MLP_H2":
@@ -79,3 +50,59 @@ def get_model(input_size ,hp):
         return Perceptron(input_size)
     else:
         raise ValueError("Bad ALGORITHM value")
+
+
+def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
+    # Courbes ROC pour tous les plis
+    plt.figure(figsize=(10, 6))
+    for fold, (y_true, y_scores) in enumerate(zip(y_true_list, y_scores_list)):
+        fpr, tpr, _ = roc_curve(y_true, y_scores)
+        roc_auc = auc(fpr, tpr)
+        plt.plot(fpr, tpr, lw=2, label=f"Fold {fold + 1} (AUC = {roc_auc:.2f})")
+
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('Taux faux positifs')
+    plt.ylabel('Taux vrai positif')
+    plt.title('ROC Curve - Tous les folds')
+    plt.legend(loc="lower right")
+    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_roc_curve.svg", format="svg")
+    plt.show()
+
+    # Courbes de Précision-Rappel pour tous les plis
+    plt.figure(figsize=(10, 6))
+    for fold, (y_true, y_scores) in enumerate(zip(y_true_list, y_scores_list)):
+        precision, recall, _ = precision_recall_curve(y_true, y_scores)
+        plt.plot(recall, precision, lw=2, label=f'Fold {fold + 1}')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve - Tous les folds')
+    plt.legend(loc="lower left")
+    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_precision_recall_curve.svg", format="svg")
+    plt.show()
+
+    # 3. Matrice de Confusion
+    cm = confusion_matrix(y_true_list[-1], y_pred_list[-1])
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title('Confusion Matrix (Dernier Fold)')
+    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_confusion_matrix.svg", format="svg")
+    plt.show()
+
+    # 4. Bar Plot des Métriques
+    f1 = f1_score(y_true_list[-1], y_pred_list[-1], average="macro")
+    precision = precision_score(y_true_list[-1], y_pred_list[-1], average="macro", zero_division=0)
+    recall = recall_score(y_true_list[-1], y_pred_list[-1], average="macro", zero_division=0)
+    accuracy = accuracy_score(y_true_list[-1], y_pred_list[-1])
+    metrics = ['Precision', 'Recall', 'F1-score', 'Accuracy']
+    values = [precision, recall, f1, accuracy]
+    plt.figure(figsize=(10, 6))
+    plt.bar(metrics, values, color=['blue', 'orange', 'green', 'red'])
+    plt.xlabel('Metriques')
+    plt.ylabel('Scores')
+    plt.title('Métriques de performances (Dernier Fold)')
+    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_performance_metrics.svg", format="svg")
+    plt.ylim(0, 1)
+
+    plt.show()

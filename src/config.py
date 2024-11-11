@@ -9,6 +9,7 @@ LOG_PATH = ""
 INPUTS_DOCUMENTS = None
 LABELS_DOCUMENTS = None
 TEST_DOCUMENTS = None
+VOCAB = None
 
 WANDB_ACTIVATE = False
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -23,3 +24,6 @@ ENDPOINT = ""
 OUTPUT_HP_FILENAME = ""
 OUTPUT_HP_PATH = ""
 
+# PREDICTION
+PREDICTION_FILENAME = ""
+PREDICTION_PATH = ""

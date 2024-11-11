@@ -4,12 +4,13 @@ import wandb
 import torch.nn as nn
 from torch import optim
 import numpy as np
-
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.metrics import f1_score, precision_score, recall_score, accuracy_score
+from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
 import src.config as config
+from src.Neural_network.utils import plot_all_visualizations
 from src.Neural_network.utils import get_model
+from src.other.word_cloud import generate_word_cloud
 from src.preprocessing import remove_low_high_frequency
 
 
@@ -28,22 +29,22 @@ def infer(model, data, threshold=0.5):
     model.eval()
     y_pred = []
     y_true = []
+    y_score = []
 
     # Compute prediction
     with torch.no_grad():
         for inputs, labels in data:
             inputs, labels = inputs.to(config.DEVICE), labels.to(config.DEVICE)
             outputs = model(inputs)
-            pred = (torch.sigmoid(outputs).view(-1) > threshold).float()
+            score = torch.sigmoid(outputs).view(-1)
+            pred = (score > threshold).float()
+            y_score.extend(score.cpu().numpy())
             y_pred.extend(pred.cpu().numpy())
             y_true.extend(labels.cpu().numpy())
 
     # Compute f1 score, precision, recall, accuracy
     f1 = f1_score(y_true, y_pred, average="macro")
-    precision = precision_score(y_true, y_pred, average="macro", zero_division=0)
-    recall = recall_score(y_true, y_pred, average="macro", zero_division=0)
-    accuracy = accuracy_score(y_true, y_pred)
-    return f1, precision, recall, accuracy
+    return f1, y_true, y_score
 
 
 def fit(model, train_loader, val_loader, epochs, infer_threshold, scheduler=None):
@@ -77,8 +78,8 @@ def fit(model, train_loader, val_loader, epochs, infer_threshold, scheduler=None
         # Compute results
         train_loss = compute_loss(model, train_loader)
         val_loss = compute_loss(model, val_loader)
-        f1_train, _, _, _ = infer(model, train_loader, infer_threshold)
-        f1_val, _, _, _ = infer(model, val_loader, infer_threshold)
+        f1_train, _, _ = infer(model, train_loader, infer_threshold)
+        f1_val, _, _, = infer(model, val_loader, infer_threshold)
 
         # Update learning rate
         if scheduler:
@@ -104,7 +105,7 @@ def fit(model, train_loader, val_loader, epochs, infer_threshold, scheduler=None
                 break
 
 
-def evaluation(hp, save_file=False, n_splits=2):
+def evaluation(hp, save_file=False, n_splits=5):
     """
     :param hp: 
     :param save_file:
@@ -118,8 +119,16 @@ def evaluation(hp, save_file=False, n_splits=2):
     # Prétraitement des données
     X_train, X_test = remove_low_high_frequency(hp.low_frequency, hp.high_frequency)
 
+    if save_file:
+        generate_word_cloud()
+
     # K-fold
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=1)
+
+    # List results
+    all_y_true = []
+    all_y_scores = []
+    all_y_pred = []
     f1_scores = []
 
     model = None
@@ -156,13 +165,20 @@ def evaluation(hp, save_file=False, n_splits=2):
         fit(model, train_loader, val_loader, hp.epochs, hp.infer_threshold, scheduler)
 
         # Predict on validation set
-        f1_val, _, _, _ = infer(model, val_loader, hp.infer_threshold)
+        f1_val, y_true, y_score = infer(model, val_loader, hp.infer_threshold)
         f1_scores.append(f1_val)
+        if save_file:
+            y_pred = (np.array(y_score) > hp.infer_threshold).astype(int)
+            all_y_true.append(y_true)
+            all_y_scores.append(y_score)
+            all_y_pred.append(y_pred)
 
     if config.WANDB_ACTIVATE:
         wandb.finish()
 
     if save_file:
+        # Enregistre les visualisations courantes
+        plot_all_visualizations(all_y_true, all_y_scores, all_y_pred)
         return model, X_test, np.mean(f1_scores)
 
     return np.mean(f1_scores)

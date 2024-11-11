@@ -37,8 +37,8 @@ hp_filename = f"hp_{config.ALGORITHM}"
 hp_path = "../../hyperparameters/"
 
 # Output prediction
-prediction_filename = f"{config.ALGORITHM}_pred"
-prediction_path = "../../output/"
+config.PREDICTION_FILENAME = f"{config.ALGORITHM}_pred"
+config.PREDICTION_PATH = "../../output/"
 
 
 def main():
@@ -48,14 +48,13 @@ def main():
     config.INPUTS_DOCUMENTS = np.load(f'{data_path}data_train.npy', allow_pickle=True)
     config.LABELS_DOCUMENTS = pd.read_csv(f'{data_path}label_train.csv').to_numpy()[:, 1]
     config.TEST_DOCUMENTS = np.load(f'{data_path}data_test.npy', allow_pickle=True)
+    config.VOCAB = np.load(f'{data_path}vocab_map.npy', allow_pickle=True)  # Exemple de vocabulaire
 
     # Bayesian optimization
     bayesian_optimization(n_trials=n_trials)
 
-    output = f"{prediction_path}{prediction_filename}"
-
     # Predict
-    predict(output=output, hp_filename=hp_filename, hp_path=hp_path)
+    predict(hp_filename=hp_filename, hp_path=hp_path)
 
 
 if __name__ == '__main__':

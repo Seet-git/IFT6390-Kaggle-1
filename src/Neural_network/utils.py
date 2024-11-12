@@ -57,7 +57,8 @@ def get_model(input_size, hp):
 def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     if not os.path.exists(f"../../plots/{config.ALGORITHM}"):
         os.makedirs(f"../../plots/{config.ALGORITHM}")
-    # Courbes ROC pour tous les plis
+
+    # Courbes ROC
     plt.figure(figsize=(10, 6))
     for fold, (y_true, y_scores) in enumerate(zip(y_true_list, y_scores_list)):
         fpr, tpr, _ = roc_curve(y_true, y_scores)
@@ -72,7 +73,7 @@ def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_roc_curve.svg", format="svg")
     plt.show()
 
-    # Courbes de Précision-Rappel pour tous les plis
+    # Courbes de Précision-Rappel
     plt.figure(figsize=(10, 6))
     for fold, (y_true, y_scores) in enumerate(zip(y_true_list, y_scores_list)):
         precision, recall, _ = precision_recall_curve(y_true, y_scores)

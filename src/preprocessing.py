@@ -1,23 +1,40 @@
 import numpy as np
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 
 import config
 
 sw_nltk = stopwords.words('english')
+lemmatizer = WordNetLemmatizer()
 
 
-def remove_stopwords(vocab: np.array):
+def remove_stopwords():
     """
     Filter the document to remove stopwords
-    :param vocab: vocabulary of the documents
-    :return: Vocabulary without stopwords
     """
 
     # Remove stopwords
-    clean_index = [word for word in range(len(vocab)) if vocab[word].lower() in sw_nltk]
+    clean_index = [word for word in range(len(config.VOCAB)) if config.VOCAB[word].lower() in sw_nltk]
 
     # Filter the inputs
     return np.delete(config.INPUTS_DOCUMENTS, clean_index, axis=1)
+
+
+def lemmatise_vocab():
+    """
+    Lemmatisation des mots du vocabulaire
+    """
+    lemmatized_vocab = [lemmatizer.lemmatize(word.lower()) for word in config.VOCAB]
+    filtered_vocab = [word for word in lemmatized_vocab if word not in sw_nltk]
+
+    # # Garder les indices des premiers mots uniques
+    unique_vocab, unique_indices = np.unique(filtered_vocab, return_index=True)
+
+    # Réduire les dimensions des matrices d'inputs et de test
+    inputs_reduced = config.INPUTS_DOCUMENTS[:, unique_indices]
+    test_reduced = config.TEST_DOCUMENTS[:, unique_indices]
+
+    return unique_vocab, inputs_reduced, test_reduced
 
 
 def tf_idf(docs):

@@ -84,7 +84,7 @@ Si vous décidez d'activer le suivi avec `wandb` dans vos scripts, assurez-vous 
 
 ## Programmes Principaux et Configuration
 
-Les programmes principaux (fichiers `naives_bayes` et `neural_network`) nécessitent une configuration pour les identifiants MySQL, le modèle, d'autres options. 
+Les programmes principaux (fichiers `naives_bayes.py` et `neural_network.py`) nécessitent une configuration pour les identifiants MySQL, le modèle, d'autres options. 
 Pour configurer ces fichiers :
 
 1. **Modifier le Fichier `config.py` :**

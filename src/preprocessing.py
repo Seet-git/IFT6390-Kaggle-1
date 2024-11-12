@@ -1,7 +1,7 @@
 import numpy as np
 from nltk.corpus import stopwords
 
-import src.config as config
+import config
 
 sw_nltk = stopwords.words('english')
 

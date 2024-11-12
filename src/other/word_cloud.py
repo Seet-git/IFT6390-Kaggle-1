@@ -1,7 +1,7 @@
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import numpy as np
-import src.config as config
+import config
 
 def generate_word_cloud():
     """
@@ -21,4 +21,4 @@ def generate_word_cloud():
     plt.imshow(wordcloud, interpolation='bilinear')
     plt.axis('off')
     plt.title("Word Cloud")
-    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_wordcloud.svg", format='svg')
+    plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_wordcloud.svg", format='svg')

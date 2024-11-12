@@ -1,8 +1,8 @@
-import src.config as config
+import config
 
 
 def export_dict_as_python(dictionary):
-    hp_file = config.OUTPUT_HP_PATH + config.OUTPUT_HP_FILENAME + ".py"
+    hp_file = f"../../{config.OUTPUT_HP_PATH}/{config.OUTPUT_HP_FILENAME}.py"
     # Open/Create file
     with open(hp_file, 'w') as file:
         for key, value in dictionary.items():

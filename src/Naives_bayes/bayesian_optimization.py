@@ -1,10 +1,12 @@
 from types import SimpleNamespace
 import optuna
-import src.config as config
-from src.Naives_bayes.training_and_saving import train_model
+import config
+from src.Naives_bayes.predict import train_model
 from src.other.export_data import export_dict_as_python, export_trial_to_csv
 from datetime import datetime
 import pytz
+
+from src.other.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
 
 montreal_timezone = pytz.timezone('America/Montreal')
 current_time = datetime.now(montreal_timezone).strftime("%m/%d-%H:%M:%S")
@@ -43,14 +45,15 @@ def optimize(n_trials):
     study = optuna.create_study(direction='maximize',
                                 study_name=f"{config.ALGORITHM} Optimizer - {current_time}"
                                 )
-    study.optimize(objective, n_trials=n_trials, callbacks=[export_trial_to_csv])
+    study.optimize(objective, n_trials=n_trials,
+                   callbacks=[export_trial_to_csv, plot_hyperparameter_correlation_matrix])
 
     # Show results
     print("Best trial:")
     trial = study.best_trial
     print(f"\tValue: {trial.value}")
-    print("\tParams:")
+    print("Params:")
     for key, value in trial.params.items():
-        print(f"{key}: {value}")
+        print(f"\t{key}: {value}")
 
     print("Best F1 score: ", study.best_value)

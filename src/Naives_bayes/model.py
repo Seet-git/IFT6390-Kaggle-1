@@ -44,7 +44,7 @@ class NaiveBayesClassifier:
             self.p_x_given_y[classes] = self.p_x_given_y[classes] / nb_inputs_class
 
     def predict(self, test_input):
-        # Apply log to avoid underflow
+        # Apply logs to avoid underflow
         log_p_y = np.log(self.p_y)
         log_p_x_given_y = np.log(self.p_x_given_y)
 

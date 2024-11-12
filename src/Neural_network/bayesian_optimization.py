@@ -4,9 +4,10 @@ import optuna
 import wandb
 from datetime import datetime
 import pytz
-import src.config as config
+import config
 from src.Neural_network.training import evaluation
 from src.other.export_data import export_dict_as_python, export_trial_to_csv
+from src.other.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
 
 montreal_timezone = pytz.timezone('America/Montreal')
 current_time = datetime.now(montreal_timezone).strftime("%m/%d-%H:%M:%S")
@@ -15,13 +16,6 @@ global_best_score = -float('inf')
 
 
 def objective(trial):
-    """config.ALGORITHM = "MLP_H2"
-    config.ALGORITHM = "MLP_H1"
-    config.ALGORITHM = "Perceptron"
-    Function to capture
-    :param trial:
-    :return:
-    """
     global global_best_score
 
     hyperparameters_dict = {
@@ -78,14 +72,15 @@ def bayesian_optimization(n_trials: int) -> None:
         sampler=optuna.samplers.TPESampler(seed=1)
     )
 
-    study.optimize(objective, n_trials=n_trials, callbacks=[export_trial_to_csv])
+    study.optimize(objective, n_trials=n_trials,
+                   callbacks=[export_trial_to_csv, plot_hyperparameter_correlation_matrix])
 
     # Show results
     print("Best trial:")
     trial = study.best_trial
     print(f"\tValue: {trial.value}")
-    print("\tParams:")
+    print("Params:")
     for key, value in trial.params.items():
-        print(f"{key}: {value}")
+        print(f"\t{key}: {value}")
 
     print("Best F1 score: ", study.best_value)

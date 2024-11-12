@@ -7,7 +7,7 @@ import numpy as np
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import f1_score
 from sklearn.model_selection import KFold
-import src.config as config
+import config
 from src.Neural_network.utils import plot_all_visualizations
 from src.Neural_network.utils import get_model
 from src.other.word_cloud import generate_word_cloud

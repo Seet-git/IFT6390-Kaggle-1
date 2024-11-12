@@ -1,6 +1,6 @@
 from src.Naives_bayes.model import *
 import numpy as np
-import src.config as config
+import config
 from src.preprocessing import remove_low_high_frequency
 
 

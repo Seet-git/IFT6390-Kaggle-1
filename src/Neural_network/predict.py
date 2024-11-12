@@ -1,26 +1,13 @@
-import importlib
-import os
-import sys
 import torch
 import pandas as pd
-from mkl_random.mklrand import hypergeometric
 from torch.utils.data import DataLoader, TensorDataset
-import src.config as config
+import config
 from src.Neural_network.training import evaluation
+from src.other.load import load_hyperparams
 
 
-def load_hyperparams(filename, file_path):
-    base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), file_path))
-    print(base_path)
-    if base_path not in sys.path:
-        sys.path.append(base_path)
-
-    # Charger le module spécifié
-    return importlib.import_module(filename)
-
-
-def predict(hp_filename, hp_path):
-    hyperparameters = load_hyperparams(hp_filename, hp_path)
+def predict():
+    hyperparameters = load_hyperparams()
     model, X_test, mean_f1_score = evaluation(hyperparameters, save_file=True)
 
     print(f"F1 score moyen obtenu : {mean_f1_score:.4f}")
@@ -51,4 +38,4 @@ def save_model_predictions(model, data_test, threshold, batch_size):
     df_pred = pd.DataFrame(predictions, columns=['label'])
     df_pred['label'] = df_pred['label'].astype(int)
     df_pred.index.name = 'ID'
-    df_pred.to_csv(f'{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}.csv')
+    df_pred.to_csv(f'../../{config.PREDICTION_PATH}/{config.ALGORITHM}/{config.PREDICTION_FILENAME}.csv')

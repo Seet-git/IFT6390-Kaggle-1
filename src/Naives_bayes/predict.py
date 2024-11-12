@@ -1,18 +1,9 @@
-import importlib
-import os
-import sys
-
 import pandas as pd
+
+import config
 from src.Naives_bayes.utils import *
-
-
-def load_hyperparams(filename, file_path):
-    base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), file_path))
-    if base_path not in sys.path:
-        sys.path.append(base_path)
-
-    # Charger le module spécifié
-    return importlib.import_module(filename)
+from src.other.load import load_hyperparams
+from src.other.word_cloud import generate_word_cloud
 
 
 def train_model(hp, epochs=10):
@@ -27,11 +18,12 @@ def train_model(hp, epochs=10):
     return res[best_test_index]
 
 
-# Best: 0.4252481472265172
-def save_prediction(output, hp_filename, hp_path):
-    hyperparameters = load_hyperparams(hp_filename, hp_path)
+def save_prediction():
+    hyperparameters = load_hyperparams()
 
     X_train, X_test = remove_low_high_frequency(hyperparameters.low_threshold, hyperparameters.high_threshold)
+
+    generate_word_cloud()
 
     # Train the model
     naives_bayes = NaiveBayesClassifier()
@@ -43,4 +35,4 @@ def save_prediction(output, hp_filename, hp_path):
     # Save the predictions
     df_pred = pd.DataFrame(pred, columns=['label'])
     df_pred.index.name = 'ID'
-    df_pred.to_csv(f'{output}.csv')
+    df_pred.to_csv(f'../../{config.PREDICTION_PATH}/{config.ALGORITHM}/{config.PREDICTION_FILENAME}.csv')

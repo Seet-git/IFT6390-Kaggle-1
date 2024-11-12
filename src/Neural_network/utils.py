@@ -1,6 +1,8 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
-import src.config as config
+import config
 import random
 from sklearn.metrics import roc_curve, auc, precision_recall_curve, confusion_matrix, f1_score, precision_score, \
     recall_score, accuracy_score
@@ -53,6 +55,8 @@ def get_model(input_size, hp):
 
 
 def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
+    if not os.path.exists(f"../../plots/{config.ALGORITHM}"):
+        os.makedirs(f"../../plots/{config.ALGORITHM}")
     # Courbes ROC pour tous les plis
     plt.figure(figsize=(10, 6))
     for fold, (y_true, y_scores) in enumerate(zip(y_true_list, y_scores_list)):
@@ -65,7 +69,7 @@ def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     plt.ylabel('Taux vrai positif')
     plt.title('ROC Curve - Tous les folds')
     plt.legend(loc="lower right")
-    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_roc_curve.svg", format="svg")
+    plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_roc_curve.svg", format="svg")
     plt.show()
 
     # Courbes de Précision-Rappel pour tous les plis
@@ -77,7 +81,7 @@ def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     plt.ylabel('Precision')
     plt.title('Precision-Recall Curve - Tous les folds')
     plt.legend(loc="lower left")
-    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_precision_recall_curve.svg", format="svg")
+    plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_precision_recall_curve.svg", format="svg")
     plt.show()
 
     # 3. Matrice de Confusion
@@ -87,7 +91,7 @@ def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     plt.xlabel('Predicted')
     plt.ylabel('Actual')
     plt.title('Confusion Matrix (Dernier Fold)')
-    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_confusion_matrix.svg", format="svg")
+    plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_confusion_matrix.svg", format="svg")
     plt.show()
 
     # 4. Bar Plot des Métriques
@@ -102,7 +106,7 @@ def plot_all_visualizations(y_true_list, y_scores_list, y_pred_list):
     plt.xlabel('Metriques')
     plt.ylabel('Scores')
     plt.title('Métriques de performances (Dernier Fold)')
-    plt.savefig(f"{config.PREDICTION_PATH}/{config.PREDICTION_FILENAME}_performance_metrics.svg", format="svg")
+    plt.savefig(f"../../plots/{config.ALGORITHM}/{config.PREDICTION_FILENAME}_performance_metrics.svg", format="svg")
     plt.ylim(0, 1)
 
     plt.show()

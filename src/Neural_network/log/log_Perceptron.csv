@@ -1,2 +1,0 @@
-number,value,datetime_start,datetime_complete,duration,params_batch_size,params_epochs,params_high_frequency,params_infer_threshold,params_learning_rate,params_low_frequency,params_minority_weight,params_weight_decay,state
-0,0.680023169653085,2024-11-11 14:45:03,2024-11-11 14:46:04,0 days 00:01:01,128,32,2,0.2382242908172191,0.007608481233714793,1,1.440267672451339,1.0007903854383775e-05,COMPLETE

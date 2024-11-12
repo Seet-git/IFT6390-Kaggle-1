@@ -3,17 +3,17 @@ import torch
 # --------------------------------------------------------------
 # ALGORITHM CONFIGURATION
 # Choose the algorithm to use
-# Options: "Naives_bayes", "Perceptron", "MLP_H1", "MLP_H2"
+# Options: "Perceptron", "MLP_H1", "MLP_H2", "Naives_bayes"
 # --------------------------------------------------------------
-ALGORITHM = "MLP_H1"
+ALGORITHM = "Naives_bayes"
 
 # --------------------------------------------------------------
 # MYSQL LOGIN CREDENTIALS
 # Provide MySQL database connection credentials
 # --------------------------------------------------------------
-USER = "optuna_seet"
-PASSWORD = "@g3NYkke*eAFRs"
-DATABASE_NAME = "optuna_MLP"
+USER = "optuna_user"
+PASSWORD = "your_password"
+DATABASE_NAME = "optuna_db"
 
 # --------------------------------------------------------------
 # ENDPOINT CONFIGURATION

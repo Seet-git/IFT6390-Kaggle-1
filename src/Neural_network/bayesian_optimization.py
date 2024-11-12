@@ -6,8 +6,8 @@ from datetime import datetime
 import pytz
 import config
 from src.Neural_network.training import evaluation
-from src.other.export_data import export_dict_as_python, export_trial_to_csv
-from src.other.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
+from src.scripts.export_data import export_dict_as_python, export_trial_to_csv
+from src.scripts.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
 
 montreal_timezone = pytz.timezone('America/Montreal')
 current_time = datetime.now(montreal_timezone).strftime("%m/%d-%H:%M:%S")

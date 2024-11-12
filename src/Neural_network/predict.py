@@ -3,7 +3,7 @@ import pandas as pd
 from torch.utils.data import DataLoader, TensorDataset
 import config
 from src.Neural_network.training import evaluation
-from src.other.load import load_hyperparams
+from src.scripts.load import load_hyperparams
 
 
 def predict():

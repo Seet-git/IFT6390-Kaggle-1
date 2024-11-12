@@ -10,7 +10,7 @@ from sklearn.model_selection import KFold
 import config
 from src.Neural_network.utils import plot_all_visualizations
 from src.Neural_network.utils import get_model
-from src.other.word_cloud import generate_word_cloud
+from src.scripts.word_cloud import generate_word_cloud
 from src.preprocessing import remove_low_high_frequency
 
 

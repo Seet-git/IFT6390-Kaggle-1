@@ -17,7 +17,9 @@ Pour commencer, assurez-vous d'installer toutes les dépendances nécessaires à
 pip install -r requirements.txt
 ```
 
-Les dépendances incluent des bibliothèques essentielles telles que `numpy`, `torch`, `wandb`, `optuna`, etc.
+Les dépendances incluent des bibliothèques telles que `numpy`, `torch`, `wandb`, `optuna`, etc.
+
+Note: Python 3.9.19 (vérifié)
 
 ## Configuration de Optuna avec MySQL et Ngrok
 
@@ -32,12 +34,11 @@ Pour optimiser vos modèles avec `optuna` et stocker les résultats dans une bas
       ```bash
       sudo apt-get update
       sudo apt-get install mysql-server
-      sudo systemctl status mysql
       ```
      
    Une fois téléchargé, vous devriez pouvoir utiliser cette commande : 
    ```bash
-   mysql -u root -p
+   sudo mysql -u root -p
    ```
 
 2. **Créer une base de données MySQL :**
@@ -53,6 +54,13 @@ Pour optimiser vos modèles avec `optuna` et stocker les résultats dans une bas
 3. **Autorisation et Accès :**
    - Assurez-vous que `optuna_user` a les autorisations nécessaires pour créer, lire, écrire et supprimer les entrées dans `optuna_db`.
    - Configurez les accès réseau de votre base de données si nécessaire.
+
+
+Si tout est correct, vous devriez voir la base de données, avec la commande suivante :
+   ```sql
+    SHOW GRANTS FOR 'optuna_user'@'localhost';
+    SHOW databases;
+   ```
 
 ### 2. Utilisation de Ngrok pour une Connexion Externe (OPTIONNEL)
 
@@ -74,7 +82,7 @@ wandb login
 
 Si vous décidez d'activer le suivi avec `wandb` dans vos scripts, assurez-vous que l'authentification est configurée correctement.
 
-## Programmes Principaux (Main) et Configuration
+## Programmes Principaux et Configuration
 
 Les programmes principaux (fichiers `naives_bayes` et `neural_network`) nécessitent une configuration pour les identifiants MySQL, le modèle, d'autres options. 
 Pour configurer ces fichiers :
@@ -95,6 +103,7 @@ Le projet dispose de plusieurs fonctionnalités de suivi :
 
 Optuna dispose d'un dashboard pour visualiser les résultats, pour y accéder, il vous suffit d'exécuter la commande suivante:
 ```bash
+pip install optuna-dashboard
 optuna-dashboard "mysql+pymysql://optuna_user:your_password@localhost:3306/optuna_db"
 ```
 

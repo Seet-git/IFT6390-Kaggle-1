@@ -2,8 +2,8 @@ import pandas as pd
 
 import config
 from src.Naives_bayes.utils import *
-from src.other.load import load_hyperparams
-from src.other.word_cloud import generate_word_cloud
+from src.scripts.load import load_hyperparams
+from src.scripts.word_cloud import generate_word_cloud
 
 
 def train_model(hp, epochs=10):

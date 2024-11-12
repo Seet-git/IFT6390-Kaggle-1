@@ -1,12 +1,13 @@
+import urllib.parse
 from types import SimpleNamespace
 import optuna
 import config
 from src.Naives_bayes.predict import train_model
-from src.other.export_data import export_dict_as_python, export_trial_to_csv
+from src.scripts.export_data import export_dict_as_python, export_trial_to_csv
 from datetime import datetime
 import pytz
 
-from src.other.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
+from src.scripts.matrix_hyperparameters import plot_hyperparameter_correlation_matrix
 
 montreal_timezone = pytz.timezone('America/Montreal')
 current_time = datetime.now(montreal_timezone).strftime("%m/%d-%H:%M:%S")
@@ -39,10 +40,10 @@ def objective(trial):
 
 
 def optimize(n_trials):
-    print(f"device: {config.DEVICE}")
-
+    storage_url = f"mysql+pymysql://{config.USER}:{urllib.parse.quote(config.PASSWORD)}@{config.ENDPOINT}/{config.DATABASE_NAME}"
     # Lancer l'optimisation bayésienne
     study = optuna.create_study(direction='maximize',
+                                storage=storage_url,
                                 study_name=f"{config.ALGORITHM} Optimizer - {current_time}"
                                 )
     study.optimize(objective, n_trials=n_trials,

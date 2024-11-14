@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 Les dépendances incluent des bibliothèques telles que `numpy`, `torch`, `wandb`, `optuna`, etc.
 
-Téléchargez les données ici: https://www.kaggle.com/competitions/classer-le-text/data puis déposez les données du projet dans le dossier ```./data``` 
+Ensuite, téléchargez les données ici: https://www.kaggle.com/competitions/classer-le-text/data puis déposez les données du projet dans le dossier ```./data```
 
 ## Configuration de Optuna avec MySQL et Ngrok
 

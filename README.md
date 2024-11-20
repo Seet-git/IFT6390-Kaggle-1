@@ -1,3 +1,4 @@
+Source: https://www.kaggle.com/competitions/classer-le-text - 17e - Score 0.73069
 
 # Classification de Texte - Bag of Words
 

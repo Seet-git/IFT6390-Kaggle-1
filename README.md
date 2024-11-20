@@ -6,7 +6,7 @@
 1. [Installation des dépendances](#installation-des-dépendances)
 2. [Configuration de Optuna avec MySQL et Ngrok](#configuration-de-optuna-avec-mysql-et-ngrok)
 3. [Utilisation de wandb](#utilisation-de-wandb)
-4. [Programmes Principaux (Main) et Configuration](#programmes-principaux-main-et-configuration)
+4. [Main et Configuration](#main-et-configuration)
 5. [Fonctionnalités de Suivi des Logs et Résultats](#fonctionnalités-de-suivi-des-logs-et-résultats)
 
 ## Installation des Dépendances
@@ -82,7 +82,7 @@ wandb login
 
 Si vous décidez d'activer le suivi avec `wandb` dans vos scripts, assurez-vous que l'authentification est configurée correctement.
 
-## Programmes Principaux et Configuration
+## Main et Configuration
 
 Les programmes principaux (fichiers `naives_bayes.py` et `neural_network.py`) nécessitent une configuration pour les identifiants MySQL, le modèle, d'autres options. 
 Pour configurer ces fichiers :
